@@ -2,7 +2,7 @@
 
 A precious-metals tokenization platform assessment: real JWT auth, a live holdings/activity dashboard, a workspace split separating the Express backend from the Next.js frontend, and a written blockchain design for APX-Gold.
 
-**Branch:** `apax/krupal` · **GitHub:** `krupal` *(confirm before submitting - inferred from the point of contact, not verified)* · **Availability:** full-time, standard business hours.
+**Repo:** [jk-coder-2002/Apax-tech-platform](https://github.com/jk-coder-2002/Apax-tech-platform) (`main`) · **GitHub:** `krupal-solulab` · **Availability:** full-time, standard business hours.
 
 ---
 
@@ -77,9 +77,8 @@ Root `package.json` uses **npm workspaces** (built into npm, not a new dependenc
 ## Setup
 
 ```bash
-git clone <repo-url> apax
+git clone https://github.com/jk-coder-2002/Apax-tech-platform.git apax
 cd apax
-git checkout apax/krupal
 npm install
 
 cp server/.env.example server/.env
@@ -182,7 +181,7 @@ All four captured from a real headless-browser run (Playwright) against the actu
 - **No blockchain code was deployed or changed** - Phase 5 is a design document against the real, existing `APAXToken.sol`, not new Solidity.
 - **The vault-deposit attestation, event indexer, and reconciliation job described in the design docs don't exist yet** - they're the next real engineering effort, not implemented here.
 - **`web/proxy.ts`'s route protection is a cookie-presence check, not a signature check** - deliberate (avoids importing JWT verification into the edge runtime), and safe because Express still verifies every request; documented in the file itself.
-- **Lighthouse a11y wasn't run as an automated score** - manual checks (keyboard focus via shadcn's built-in `focus-visible` styles, `aria-live` on the login error region, `aria-describedby` on invalid fields, 360px layout, `prefers-reduced-motion`) were verified in a real browser instead - see the `style(web)` commit in the git history for exactly what was checked.
+- **Lighthouse a11y wasn't run as an automated score** - manual checks (keyboard focus via shadcn's built-in `focus-visible` styles, `aria-live` on the login error region, `aria-describedby` on invalid fields, 360px layout, `prefers-reduced-motion`) were verified in a real browser instead.
 
 ## Security: what was removed
 
