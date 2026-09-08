@@ -1,0 +1,110 @@
+### APAX API requests
+### Use the REST Client extension (VS Code) or import into your HTTP client of choice.
+### Run `npm run seed -w server` first for the demo user these assume.
+
+@baseUrl = http://localhost:4000
+@demoEmail = demo@apax.institutional
+@demoPassword = ApaxDemo123!
+
+### Health check
+GET {{baseUrl}}/health
+
+### ---------------------------------------------------------------
+### Auth (Task 2A) - mounted at /user (legacy prefix, see README)
+### ---------------------------------------------------------------
+
+### Login - success
+# @name login
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "{{demoEmail}}",
+  "password": "{{demoPassword}}"
+}
+
+### Login - wrong password (same message as unknown email, by design)
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "{{demoEmail}}",
+  "password": "wrong-password"
+}
+
+### Login - unknown email (same message as wrong password, by design)
+POST {{baseUrl}}/user/login
+Content-Type: application/json
+
+{
+  "email": "nobody@apax.institutional",
+  "password": "whatever123"
+}
+
+### Login - rate limited after 10 attempts in 15 minutes
+# Run the wrong-password request above 10+ times in a row to see this fire.
+
+### Current user (requires the cookie set by /user/login above)
+GET {{baseUrl}}/user/me
+
+### Logout - clears the cookie
+GET {{baseUrl}}/user/logout
+
+### Register (legacy - uploads an avatar via Cloudinary, needs real creds)
+POST {{baseUrl}}/user/register
+Content-Type: application/json
+
+{
+  "name": "New User",
+  "email": "newuser@apax.institutional",
+  "gender": "unspecified",
+  "password": "SomePassword123",
+  "avatar": ""
+}
+
+### ---------------------------------------------------------------
+### Holdings + activity (Task 2B, and Task 1B's data source)
+### mounted at /api - the naming the brief asks for directly
+### ---------------------------------------------------------------
+
+### Holdings - 401 with no cookie
+GET {{baseUrl}}/api/holdings
+
+### Holdings - 200 with a valid session (run the login request above first)
+GET {{baseUrl}}/api/holdings
+
+### Holdings - 401 with a tampered token
+GET {{baseUrl}}/api/holdings
+Cookie: token=not-a-real-token
+
+### Recent activity - 401 with no cookie
+GET {{baseUrl}}/api/activity
+
+### Recent activity - 200 with a valid session
+GET {{baseUrl}}/api/activity
+
+### ---------------------------------------------------------------
+### Legacy demo stubs - unrelated to the gold/silver/platinum
+### portfolio, kept as-is under their original paths (see README)
+### ---------------------------------------------------------------
+
+### Balance summary (in-memory, resets on server restart)
+GET {{baseUrl}}/balance
+
+### Activity - add a deposit
+POST {{baseUrl}}/activity/deposit
+Content-Type: application/json
+
+{
+  "user": "demo",
+  "amount": 100
+}
+
+### Activity - add a withdrawal
+POST {{baseUrl}}/activity/withdrawal
+Content-Type: application/json
+
+{
+  "user": "demo",
+  "amount": 50
+}
