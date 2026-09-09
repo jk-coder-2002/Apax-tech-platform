@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { comingSoon } from '@/lib/coming-soon'
 
 const advisoryBoard = [
   {
@@ -232,6 +233,7 @@ export function ShariaView() {
                   <Button
                     variant="ghost"
                     size="sm"
+                    onClick={() => comingSoon(`Download: ${doc.title}`)}
                     className="text-[#D4AF37] hover:bg-[#1A1A1A]"
                   >
                     <Download className="h-4 w-4" />
@@ -262,6 +264,7 @@ export function ShariaView() {
             </div>
             <Button
               variant="outline"
+              onClick={() => comingSoon('On-chain verification')}
               className="border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 bg-transparent"
             >
               <ExternalLink className="h-4 w-4 mr-2" />

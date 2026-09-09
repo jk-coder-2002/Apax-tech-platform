@@ -2,6 +2,7 @@ import React from "react"
 import type { Metadata, Viewport } from 'next'
 import { Inter, Playfair_Display, Geist_Mono } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { Toaster } from '@/components/ui/sonner'
 import './globals.css'
 
 const _inter = Inter({
@@ -53,6 +54,7 @@ export default function RootLayout({
     <html lang="en" className="dark">
       <body className="font-sans antialiased bg-[#0A0A0A] text-[#E8E8E8]">
         {children}
+        <Toaster theme="dark" position="bottom-right" />
         <Analytics />
       </body>
     </html>

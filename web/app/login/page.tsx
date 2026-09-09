@@ -13,6 +13,7 @@ import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { loginApi } from '@/lib/services/login.api'
 import { useAuthStore } from '@/lib/store'
+import { comingSoon } from '@/lib/coming-soon'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -232,6 +233,7 @@ export default function LoginPage() {
                   variant="outline"
                   className="border-[#2A2A2A] text-[#C0C0C0] hover:bg-[#1A1A1A] hover:border-[#D4AF37]/30 bg-transparent"
                   disabled={isLoading}
+                  onClick={() => comingSoon('MetaMask')}
                 >
                   MetaMask
                 </Button>
@@ -239,6 +241,7 @@ export default function LoginPage() {
                   variant="outline"
                   className="border-[#2A2A2A] text-[#C0C0C0] hover:bg-[#1A1A1A] hover:border-[#D4AF37]/30 bg-transparent"
                   disabled={isLoading}
+                  onClick={() => comingSoon('WalletConnect')}
                 >
                   WalletConnect
                 </Button>
@@ -314,7 +317,13 @@ export default function LoginPage() {
                     <input type="checkbox" className="rounded border-[#2A2A2A] bg-[#1A1A1A] text-[#D4AF37] focus:ring-[#D4AF37]/20" />
                     Remember me
                   </label>
-                  <a href="#" className="text-[#D4AF37] hover:text-[#E6C861]">Forgot password?</a>
+                  <button
+                    type="button"
+                    onClick={() => comingSoon('Password reset')}
+                    className="text-[#D4AF37] hover:text-[#E6C861]"
+                  >
+                    Forgot password?
+                  </button>
                 </div>
 
                 <Button

@@ -4,6 +4,7 @@ import { FileText, Download, Shield, CheckCircle, ExternalLink } from 'lucide-re
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
+import { comingSoon } from '@/lib/coming-soon'
 
 const certifications = [
   {
@@ -105,6 +106,7 @@ export function ShariaCertificationHub() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => comingSoon(`Download: ${cert.title}`)}
                   className="flex-1 h-7 text-[10px] text-[#C0C0C0] hover:text-[#D4AF37] hover:bg-[#1A1A1A] px-1"
                 >
                   <Download className="h-3 w-3 mr-1 shrink-0" />
@@ -113,6 +115,7 @@ export function ShariaCertificationHub() {
                 <Button
                   variant="ghost"
                   size="sm"
+                  onClick={() => comingSoon(`View: ${cert.title}`)}
                   className="flex-1 h-7 text-[10px] text-[#C0C0C0] hover:text-[#D4AF37] hover:bg-[#1A1A1A] px-1"
                 >
                   <ExternalLink className="h-3 w-3 mr-1 shrink-0" />
@@ -143,6 +146,7 @@ export function ShariaCertificationHub() {
             <Button
               variant="outline"
               size="sm"
+              onClick={() => comingSoon('On-chain verification')}
               className="h-7 border-[#D4AF37]/30 text-[#D4AF37] hover:bg-[#D4AF37]/10 bg-transparent text-[10px] px-3 shrink-0"
             >
               Verify

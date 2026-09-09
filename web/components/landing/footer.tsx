@@ -1,7 +1,9 @@
 'use client'
 
+import type { MouseEvent } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
+import { comingSoon } from '@/lib/coming-soon'
 
 function IconMail({ className }: { className?: string }) {
   return (
@@ -57,6 +59,11 @@ const socialLinks = [
   { icon: IconMail, href: '#', label: 'Email' },
 ]
 
+function handlePlaceholderClick(e: MouseEvent<HTMLAnchorElement>, label: string) {
+  e.preventDefault()
+  comingSoon(label)
+}
+
 export function LandingFooter() {
   return (
     <footer className="bg-[#0A0A0A] border-t border-[#1A1A1A] pt-20 pb-10">
@@ -86,6 +93,7 @@ export function LandingFooter() {
                 <a
                   key={social.label}
                   href={social.href}
+                  onClick={(e) => handlePlaceholderClick(e, social.label)}
                   className="w-9 h-9 rounded-sm bg-[#111111] border border-[#1A1A1A] flex items-center justify-center hover:border-[#D4AF37]/30 transition-vault"
                   aria-label={social.label}
                 >
@@ -101,7 +109,11 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.platform.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault">
+                  <a
+                    href={link.href}
+                    onClick={link.href === '#' ? (e) => handlePlaceholderClick(e, link.label) : undefined}
+                    className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -114,7 +126,11 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.company.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault">
+                  <a
+                    href={link.href}
+                    onClick={(e) => handlePlaceholderClick(e, link.label)}
+                    className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault"
+                  >
                     {link.label}
                   </a>
                 </li>
@@ -127,7 +143,11 @@ export function LandingFooter() {
             <ul className="space-y-3">
               {footerLinks.legal.map((link) => (
                 <li key={link.label}>
-                  <a href={link.href} className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault">
+                  <a
+                    href={link.href}
+                    onClick={(e) => handlePlaceholderClick(e, link.label)}
+                    className="text-sm text-[#888888] hover:text-[#D4AF37] transition-vault"
+                  >
                     {link.label}
                   </a>
                 </li>

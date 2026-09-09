@@ -20,6 +20,7 @@ export function ZakatView() {
   const { userHoldings, metalPrices, zakatCalculation, calculateZakat } = useAPAXStore()
   const [additionalCash, setAdditionalCash] = useState(0)
   const [hasCalculated, setHasCalculated] = useState(false)
+  const [niyyahConfirmed, setNiyyahConfirmed] = useState(false)
 
   // Calculate asset values
   const goldValue = userHoldings.goldGrams * (metalPrices.gold / 31.1035)
@@ -265,18 +266,13 @@ export function ZakatView() {
                     </p>
                   </div>
                   <Button
-                    onClick={() => {
-                      // Toggle visual state (mock)
-                      const doc = document.getElementById('niyyah-btn');
-                      if (doc) {
-                        doc.innerText = "Niyyah Confirmed";
-                        doc.classList.add("bg-emerald-500/10");
-                      }
-                    }}
-                    id="niyyah-btn"
-                    className="w-full border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 bg-transparent transition-all duration-500"
+                    onClick={() => setNiyyahConfirmed(true)}
+                    disabled={niyyahConfirmed}
+                    className={`w-full border-emerald-500/30 text-emerald-500 hover:bg-emerald-500/10 bg-transparent transition-all duration-500 disabled:opacity-100 ${
+                      niyyahConfirmed ? 'bg-emerald-500/10' : ''
+                    }`}
                   >
-                    Confirm Niyyah (Intent)
+                    {niyyahConfirmed ? 'Niyyah Confirmed' : 'Confirm Niyyah (Intent)'}
                   </Button>
                 </div>
               </CardContent>

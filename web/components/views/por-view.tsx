@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Empty, EmptyHeader, EmptyMedia, EmptyTitle, EmptyDescription } from '@/components/ui/empty'
 import { useAPAXStore, useActivityStore, formatWeight } from '@/lib/store'
+import { comingSoon } from '@/lib/coming-soon'
 
 export function PorView() {
   const { vaultData } = useAPAXStore()
@@ -274,6 +275,7 @@ export function PorView() {
               <Button
                 variant="ghost"
                 size="sm"
+                onClick={() => comingSoon('On-chain ledger view')}
                 className="text-[#D4AF37] hover:bg-[#1A1A1A] font-mono text-xs"
               >
                 <ArrowSquareOut weight="light" className="h-3 w-3 mr-2" />
