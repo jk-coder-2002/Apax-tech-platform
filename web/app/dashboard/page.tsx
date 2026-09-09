@@ -10,6 +10,7 @@ import { RedemptionView } from '@/components/views/redemption-view'
 import { ShariaView } from '@/components/views/sharia-view'
 import { HelpView } from '@/components/views/help-view'
 import { SettingsView } from '@/components/views/settings-view'
+import { SessionLoading } from '@/components/session-loading'
 import {
   useAPAXStore,
   useAuthStore,
@@ -109,7 +110,7 @@ export default function DashboardPage() {
   }
 
   if (isHydrating) {
-    return null
+    return <SessionLoading />
   }
 
   return (

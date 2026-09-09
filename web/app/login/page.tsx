@@ -14,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { loginApi } from '@/lib/services/login.api'
 import { getMeApi } from '@/lib/services/me.api'
 import { useAuthStore } from '@/lib/store'
+import { SessionLoading } from '@/components/session-loading'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -115,7 +116,7 @@ export default function LoginPage() {
   }
 
   if (checkingSession) {
-    return null
+    return <SessionLoading />
   }
 
   return (
