@@ -10,6 +10,7 @@ import AppError from "../utils/AppError";
 import sendEmail from "../utils/sendEmail";
 import { sendSuccess } from "../utils/sendResponse";
 import { config } from "../config/env";
+import { AUTH_COOKIE_NAME, getAuthCookieOptions } from "../utils/authCookie";
 
 // A hash of a password nobody will ever enter, used to keep the login
 // timing identical whether or not the email exists (see loginUser below).
@@ -62,9 +63,9 @@ export const loginUser = asyncHandler(async (req: Request, res: Response, next: 
 
 // ================= LOGOUT =================
 export const logoutUser = asyncHandler(async (_req: Request, res: Response) => {
-  res.cookie("token", null, {
+  res.cookie(AUTH_COOKIE_NAME, null, {
+    ...getAuthCookieOptions(),
     expires: new Date(Date.now()),
-    httpOnly: true,
   });
 
   sendSuccess(res, 200, null, "Logged out");

@@ -25,6 +25,7 @@
     "helmet": "^8.0.0",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.3.0",
+    "tsx": "^4.21.0",
     "validator": "^13.15.26"
   },
   "devDependencies": {
@@ -37,7 +38,6 @@
     "@typescript-eslint/eslint-plugin": "^8.54.0",
     "@typescript-eslint/parser": "^8.54.0",
     "eslint": "^9.39.2",
-    "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   }
 }

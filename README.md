@@ -38,7 +38,7 @@ Result: across `localhost:3000 → localhost:4000`, the cookie was set by the br
 
 **The fix:** httpOnly cookie only, chosen over `Authorization: Bearer` for the XSS-vs-CSRF tradeoff below. `web/lib/services/base.api.ts` now sends `credentials: 'include'` on every request; `server/src/app.ts` locks CORS to an explicit allowlist (`server/src/config/cors.ts`) with `credentials: true` - only those origins can make a credentialed request at all. The JWT is no longer duplicated into the JSON response body either - see [`sendToken.ts`](server/src/utils/sendToken.ts) - since doing so would let any JS on the page (i.e. an XSS payload) read it straight out of the response, defeating the entire reason for choosing httpOnly in the first place.
 
-**Why httpOnly cookie over `Authorization: Bearer`:** a bearer token has to live somewhere JS can read it to attach it to requests - localStorage (readable by any injected script) or in-memory (safe from XSS, but a hard refresh silently logs the user out unless a refresh-token flow is added, which is more moving parts than this assessment needs). An httpOnly cookie can't be read by JS at all, closing the XSS-theft vector outright; the tradeoff is CSRF exposure, mitigated here with `SameSite=Lax` plus the fact that the API only accepts JSON bodies (no form-based CSRF submission works against it). `localhost:3000` and `localhost:4000` are different *origins* but the same *site* (registrable domain `localhost`), so this works in local dev without needing `SameSite=None`; the same holds in production as long as the frontend and API share a registrable domain (e.g. `app.apax.com` / `api.apax.com`).
+**Why httpOnly cookie over `Authorization: Bearer`:** a bearer token has to live somewhere JS can read it to attach it to requests - localStorage (readable by any injected script) or in-memory (safe from XSS, but a hard refresh silently logs the user out unless a refresh-token flow is added, which is more moving parts than this assessment needs). An httpOnly cookie can't be read by JS at all, closing the XSS-theft vector outright; the tradeoff is CSRF exposure, mitigated here with `SameSite` (see below) plus the fact that the API only accepts JSON bodies (no form-based CSRF submission works against it). `localhost:3000` and `localhost:4000` are different *origins* but the same *site* (registrable domain `localhost`), so `SameSite=Lax` works in local dev without needing HTTPS. Deployed, frontend and backend can end up on genuinely different domains (e.g. Vercel + Render) - see [Deployment](#deployment-vercel--render) for how the cookie's attributes adapt to that, and the tradeoff it introduces.
 
 ## Architecture
 
@@ -136,6 +136,27 @@ All run from the repo root via npm workspaces:
 | `npm run typecheck` | Both apps, `strict: true` |
 | `npm run test` | Server test suite ([see below](#tests)) |
 | `npm run seed` | Demo user + data |
+
+## Deployment (Vercel + Render)
+
+The monorepo structure supports deploying `web/` and `server/` as two separate services from one repo - both platforms have native "root directory" support for exactly this.
+
+**Vercel (`web/`):**
+- Root Directory: `web`
+- Framework preset: Next.js (auto-detected)
+- Enable **"Include files outside the Root Directory"** in project settings - `web/tsconfig.json`'s `@shared/*` alias resolves to `../shared/*`, a sibling of `web/`, and Vercel won't see it otherwise
+- Env var: `NEXT_PUBLIC_API_URL` = the deployed Render backend's URL
+
+**Render (`server/`):**
+- Root Directory: leave blank (repo root), so `-w server` workspace commands and the `../shared` import both resolve correctly
+- Build Command: `npm install && npm run build -w server`
+- Start Command: `npm run start -w server`
+- Env vars: everything in [`server/.env.example`](server/.env.example) (`PORT` is set automatically by Render - don't override it)
+- Set `NODE_ENV=production` - this flips the cookie's `sameSite`/`secure` attributes (see below) and disables verbose error stack traces
+
+**Cross-domain cookies:** Vercel (`*.vercel.app`) and Render (`*.onrender.com`) are different registrable domains, not just different ports like local dev's `localhost:3000`/`:4000` - a genuinely cross-site request. The auth cookie (`server/src/utils/authCookie.ts`) is `sameSite: "lax"` in development (same-site, works without HTTPS) and `sameSite: "none"` in production (required for cross-site, and only honored by browsers when the cookie is also `secure`, which `NODE_ENV=production` sets). One caveat worth knowing: a `SameSite=None` cookie is a *third-party cookie* from the browser's perspective when frontend and backend are on unrelated domains, and some browsers restrict those by default (Safari's ITP, and increasingly hardened Chrome profiles) - this can silently break auth for a subset of visitors even though it works in most browsers. If that becomes a real issue, the fix is either a custom domain with both services on subdomains of it (same registrable domain again, `sameSite: "lax"` keeps working) or proxying API calls through the Vercel domain so the browser never sees a cross-site request at all.
+
+**CORS:** once you know the deployed Vercel URL, add it to the allowlist in [`server/src/config/cors.ts`](server/src/config/cors.ts) - requests from an origin not on that list are rejected regardless of the cookie settings above.
 
 ## API reference
 
