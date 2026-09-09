@@ -3,4 +3,5 @@
 export const allowedOrigins: string[] = [
   "http://localhost:3000",
   "http://localhost:3002",
+  "https://apax-tech-platform-web.vercel.app"
 ];
