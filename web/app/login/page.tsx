@@ -21,8 +21,6 @@ export default function LoginPage() {
   const router = useRouter()
   const setUser = useAuthStore((state) => state.setUser)
   const [showPassword, setShowPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [vaultOpening, setVaultOpening] = useState(false)
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [emailError, setEmailError] = useState<string | null>(null)
@@ -84,20 +82,6 @@ export default function LoginPage() {
     }
   }
 
-  const handleWalletConnect = async () => {
-    setIsLoading(true)
-
-    // Simulate wallet connection
-    await new Promise(resolve => setTimeout(resolve, 1500))
-
-    // Trigger vault door animation
-    setVaultOpening(true)
-
-    // Navigate after animation
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    router.push('/dashboard')
-  }
-
   return (
     <div className="min-h-screen bg-radial-obsidian flex items-center justify-center p-4 relative overflow-hidden">
       {/* Background Effects */}
@@ -114,44 +98,6 @@ export default function LoginPage() {
           }}
         />
       </div>
-
-      {/* Vault Door Animation Overlay */}
-      {vaultOpening && (
-        <div className="fixed inset-0 z-50 flex pointer-events-none">
-          {/* Left Door Panel */}
-          <div className="vault-door-left w-1/2 h-full bg-[#050505] border-r border-[#D4AF37]/20 flex items-center justify-end relative z-20">
-            {/* Brushed Metal Texture */}
-            <div className="absolute inset-0 bg-gradient-to-br from-[#1A1A1A] to-[#050505] opacity-90" />
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
-
-            {/* Locking Mechanisms (Pistons) */}
-            <div className="relative z-10 w-8 h-64 border-r-4 border-[#D4AF37] flex flex-col justify-between py-8 mr-[-2px] shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-              <div className="w-12 h-4 bg-gradient-to-r from-transparent to-[#D4AF37] rounded-l-sm" />
-              <div className="w-16 h-4 bg-gradient-to-r from-transparent to-[#D4AF37] rounded-l-sm" />
-              <div className="w-12 h-4 bg-gradient-to-r from-transparent to-[#D4AF37] rounded-l-sm" />
-            </div>
-          </div>
-
-          {/* Right Door Panel */}
-          <div className="vault-door-right w-1/2 h-full bg-[#050505] border-l border-[#D4AF37]/20 flex items-center justify-start relative z-20">
-            {/* Brushed Metal Texture */}
-            <div className="absolute inset-0 bg-gradient-to-bl from-[#1A1A1A] to-[#050505] opacity-90" />
-            <div className="absolute inset-0 bg-[url('/noise.png')] opacity-10 mix-blend-overlay" />
-
-            {/* Locking Mechanisms (Pistons) */}
-            <div className="relative z-10 w-8 h-64 border-l-4 border-[#D4AF37] flex flex-col justify-between py-8 ml-[-2px] shadow-[0_0_30px_rgba(212,175,55,0.3)]">
-              <div className="w-12 h-4 bg-gradient-to-l from-transparent to-[#D4AF37] rounded-r-sm" />
-              <div className="w-16 h-4 bg-gradient-to-l from-transparent to-[#D4AF37] rounded-r-sm" />
-              <div className="w-12 h-4 bg-gradient-to-l from-transparent to-[#D4AF37] rounded-r-sm" />
-            </div>
-          </div>
-
-          {/* Central Lock Spinner (Fading out) */}
-          <div className="absolute inset-0 z-30 flex items-center justify-center animate-ping-slow pointer-events-none">
-            <div className="w-96 h-96 rounded-full border border-[#D4AF37]/10 animate-spin-slow-reverse" />
-          </div>
-        </div>
-      )}
 
       {/* Login Card */}
       <div className="w-full max-w-md relative z-10">
@@ -205,18 +151,11 @@ export default function LoginPage() {
               </div>
 
               <Button
-                onClick={handleWalletConnect}
-                disabled={isLoading}
+                onClick={() => comingSoon('SidraChain wallet connection')}
                 className="w-full metallic-shine bg-[#D4AF37] text-[#0A0A0A] hover:bg-[#E6C861] font-semibold h-12 gap-2"
               >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-[#0A0A0A]/30 border-t-[#0A0A0A] rounded-full animate-spin" />
-                ) : (
-                  <>
-                    Connect Sidra Ledger Gateway
-                    <CaretRight weight="bold" className="w-4 h-4" />
-                  </>
-                )}
+                Connect Sidra Ledger Gateway
+                <CaretRight weight="bold" className="w-4 h-4" />
               </Button>
 
               <div className="relative">
@@ -232,7 +171,6 @@ export default function LoginPage() {
                 <Button
                   variant="outline"
                   className="border-[#2A2A2A] text-[#C0C0C0] hover:bg-[#1A1A1A] hover:border-[#D4AF37]/30 bg-transparent"
-                  disabled={isLoading}
                   onClick={() => comingSoon('MetaMask')}
                 >
                   MetaMask
@@ -240,7 +178,6 @@ export default function LoginPage() {
                 <Button
                   variant="outline"
                   className="border-[#2A2A2A] text-[#C0C0C0] hover:bg-[#1A1A1A] hover:border-[#D4AF37]/30 bg-transparent"
-                  disabled={isLoading}
                   onClick={() => comingSoon('WalletConnect')}
                 >
                   WalletConnect
