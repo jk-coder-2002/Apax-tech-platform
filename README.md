@@ -122,7 +122,8 @@ Open http://localhost:3000/login.
 
 | Variable | Required | Notes |
 |---|---|---|
-| `NEXT_PUBLIC_API_URL` | No | Defaults to `http://localhost:4000` |
+| `NEXT_PUBLIC_API_URL` | No | Defaults to `http://localhost:4000`. Set to an empty string (not unset) in a deployed, split-domain environment - see [Deployment](#deployment-vercel--render) |
+| `BACKEND_URL` | Only in deployment | Server-side only (no `NEXT_PUBLIC_` prefix) - used by the rewrite proxy, not the browser |
 
 ## Scripts
 
@@ -142,22 +143,26 @@ All run from the repo root via npm workspaces:
 
 The monorepo structure supports deploying `web/` and `server/` as two separate services from one repo - both platforms have native "root directory" support for exactly this.
 
+**The cross-domain cookie problem, and why API calls are proxied through Vercel:** Vercel (`*.vercel.app`) and Render (`*.onrender.com`) are different registrable domains - a genuinely cross-site relationship, not just different ports like local dev's `localhost:3000`/`:4000`. The first version of this deployment set the auth cookie to `sameSite: "none"; secure: true`, which is the textbook fix for a cross-site cookie - and it still failed in real testing: Chrome and Safari's third-party-cookie restrictions block a cookie from an unrelated domain outright, regardless of `SameSite`/`Secure`, and this now happens by default rather than as an edge case. Confirmed directly: a request to `/api/holdings` from the deployed frontend carried no `Cookie` header at all, and `sec-fetch-storage-access: active` in the request headers showed Chrome's Storage Access API actively intervening.
+
+The actual fix is routing every API call through the frontend's own origin, via Next.js rewrites (`web/next.config.mjs`) - the browser only ever talks to Vercel, Vercel's server forwards the request to Render and relays the response back untouched, and the auth cookie ends up scoped to Vercel's own domain (first-party, same-site) because that's the only origin the browser ever sees. `sameSite: "lax"` (`server/src/utils/authCookie.ts`) is correct with this setup, not a workaround.
+
 **Vercel (`web/`):**
 - Root Directory: `web`
 - Framework preset: Next.js (auto-detected)
 - Enable **"Include files outside the Root Directory"** in project settings - `web/tsconfig.json`'s `@shared/*` alias resolves to `../shared/*`, a sibling of `web/`, and Vercel won't see it otherwise
-- Env var: `NEXT_PUBLIC_API_URL` = the deployed Render backend's URL
+- Env vars:
+  - `NEXT_PUBLIC_API_URL` = `` (empty - not unset, *empty*) so `web/lib/services/base.api.ts` makes relative requests to its own origin instead of Render's directly
+  - `BACKEND_URL` = the deployed Render backend's URL, **no** `NEXT_PUBLIC_` prefix - this one is read server-side only, inside the rewrite config, and must never reach the browser bundle
 
 **Render (`server/`):**
 - Root Directory: leave blank (repo root), so `-w server` workspace commands and the `../shared` import both resolve correctly
 - Build Command: `npm install && npm run build -w server`
 - Start Command: `npm run start -w server`
 - Env vars: everything in [`server/.env.example`](server/.env.example) (`PORT` is set automatically by Render - don't override it)
-- Set `NODE_ENV=production` - this flips the cookie's `sameSite`/`secure` attributes (see below) and disables verbose error stack traces
+- Set `NODE_ENV=production` - this enables the `secure` cookie flag (required once Vercel serves over HTTPS) and disables verbose error stack traces
 
-**Cross-domain cookies:** Vercel (`*.vercel.app`) and Render (`*.onrender.com`) are different registrable domains, not just different ports like local dev's `localhost:3000`/`:4000` - a genuinely cross-site request. The auth cookie (`server/src/utils/authCookie.ts`) is `sameSite: "lax"` in development (same-site, works without HTTPS) and `sameSite: "none"` in production (required for cross-site, and only honored by browsers when the cookie is also `secure`, which `NODE_ENV=production` sets). One caveat worth knowing: a `SameSite=None` cookie is a *third-party cookie* from the browser's perspective when frontend and backend are on unrelated domains, and some browsers restrict those by default (Safari's ITP, and increasingly hardened Chrome profiles) - this can silently break auth for a subset of visitors even though it works in most browsers. If that becomes a real issue, the fix is either a custom domain with both services on subdomains of it (same registrable domain again, `sameSite: "lax"` keeps working) or proxying API calls through the Vercel domain so the browser never sees a cross-site request at all.
-
-**CORS:** once you know the deployed Vercel URL, add it to the allowlist in [`server/src/config/cors.ts`](server/src/config/cors.ts) - requests from an origin not on that list are rejected regardless of the cookie settings above.
+**CORS:** with the rewrite in place, the browser no longer makes cross-origin requests to Render directly - Vercel's server does, server-to-server, which browsers don't apply CORS to at all. The Vercel origin stays in [`server/src/config/cors.ts`](server/src/config/cors.ts)'s allowlist regardless, as a safety net for any request that somehow reaches Render directly.
 
 ## API reference
 
