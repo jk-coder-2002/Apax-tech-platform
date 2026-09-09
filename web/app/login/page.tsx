@@ -12,9 +12,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { loginApi } from '@/lib/services/login.api'
-import { getMeApi } from '@/lib/services/me.api'
 import { useAuthStore } from '@/lib/store'
-import { SessionLoading } from '@/components/session-loading'
 
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
@@ -30,35 +28,19 @@ export default function LoginPage() {
   const [passwordError, setPasswordError] = useState<string | null>(null)
   const [formError, setFormError] = useState<string | null>(null)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  const [checkingSession, setCheckingSession] = useState(true)
 
-  // Redirect away if already signed in. This used to be handled server-side
-  // by proxy.ts checking the auth cookie's presence, but that only worked
-  // because local dev has frontend and backend on the same "site"
-  // (localhost, different ports). Deployed, the cookie belongs to the
-  // backend's domain (e.g. Render) and is never visible to a check running
-  // on the frontend's own domain (e.g. Vercel) - so the check has to happen
-  // client-side, via a real request to the backend, which does correctly
-  // carry the cross-origin cookie.
+  // This page renders immediately, unconditionally - it's public, so there's
+  // nothing to check before showing it. The one thing worth doing is
+  // skipping straight to the dashboard if this browser tab already has a
+  // signed-in user in memory (e.g. clicking back right after logging in) -
+  // that's a synchronous read of the store, not a network call, so it never
+  // delays the form appearing. A real "is this session still valid" check
+  // only matters for protected pages (see app/dashboard/page.tsx) - it's
+  // not worth making every visitor to a public login page wait on a
+  // request to find out.
   useEffect(() => {
     if (useAuthStore.getState().user) {
       router.push('/dashboard')
-      return
-    }
-
-    let cancelled = false
-    getMeApi().then((res) => {
-      if (cancelled) return
-      if (res.success && res.data) {
-        setUser(res.data.user)
-        router.push('/dashboard')
-      } else {
-        setCheckingSession(false)
-      }
-    })
-
-    return () => {
-      cancelled = true
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
@@ -113,10 +95,6 @@ export default function LoginPage() {
     // Navigate after animation
     await new Promise(resolve => setTimeout(resolve, 1000))
     router.push('/dashboard')
-  }
-
-  if (checkingSession) {
-    return <SessionLoading />
   }
 
   return (
